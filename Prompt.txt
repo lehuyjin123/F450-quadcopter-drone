@@ -1,0 +1,311 @@
+# PROJECT PROMPT — CUSTOM STM32 + ESP32 DRONE FLIGHT CONTROLLER
+
+## PROJECT OVERVIEW
+
+Design and implement a custom quadcopter flight controller using:
+
+- STM32F103C8T6 as the real-time flight controller
+- ESP32-WROOM-32E as communication/UI bridge
+- MPU6050 (GY-521) as IMU sensor
+- 4 ESCs controlled by PWM
+- WiFi communication with phone or PC
+- Telemetry streaming back to UI
+
+The project goal is:
+- stable drone flight
+- manual control through WiFi
+- real-time telemetry monitoring
+- modular architecture
+- future expansion for autonomous flight/follow mode
+
+---
+
+# SYSTEM ARCHITECTURE
+
+## ESP32 Responsibilities
+
+ESP32 acts as:
+- WiFi access point OR WiFi client
+- communication bridge
+- telemetry transmitter
+- UI server
+- command parser
+
+ESP32 tasks:
+- create WiFi hotspot
+- host web UI OR communicate with Node-RED dashboard
+- receive joystick/control inputs
+- send commands to STM32 through UART
+- receive telemetry data from STM32 through UART
+- forward telemetry to phone/PC UI
+
+Communication:
+```plaintext
+Phone/PC <-> WiFi <-> ESP32 <-> UART <-> STM32
+
+
+
+UART protocol:
+
+bidirectional
+packet-based
+non-blocking
+checksum preferred
+
+Recommended UART baudrate:
+
+115200 or 230400
+STM32 Responsibilities
+
+STM32 acts as:
+
+main flight controller
+real-time control processor
+
+STM32 tasks:
+
+receive commands from ESP32
+read MPU6050 data through I2C
+perform sensor fusion
+calculate roll/pitch/yaw
+run PID control loops
+generate PWM outputs for 4 ESCs
+send telemetry back to ESP32
+
+Main processing loop target:
+
+200Hz – 1000Hz
+HARDWARE DETAILS
+MCU
+STM32
+STM32F103C8T6
+external 8MHz crystal
+SWD programming
+ESP32
+ESP32-WROOM-32E-N16
+UART programming
+onboard PCB antenna
+SENSOR
+MPU6050 / GY-521
+
+Connection:
+
+STM32 I2C1
+SCL -> PB6
+SDA -> PB7
+
+Data needed:
+
+accelerometer
+gyroscope
+temperature optional
+
+Target outputs:
+
+roll angle
+pitch angle
+yaw rate
+MOTOR CONTROL
+ESC
+
+ESC type:
+
+30A ESC
+
+PWM:
+
+50Hz
+1000us – 2000us
+
+STM32 outputs:
+
+TIM PWM outputs
+
+Example:
+
+Motor 1 -> PA0
+Motor 2 -> PA1
+Motor 3 -> PA2
+Motor 4 -> PA3
+DRONE CONFIGURATION
+Frame
+F450
+Recommended Motors
+2212 920KV or 1000KV
+Props
+1045
+Battery
+3S LiPo
+SOFTWARE ARCHITECTURE
+STM32 SOFTWARE
+Required modules
+MPU6050 driver
+
+Functions:
+
+init
+read accel
+read gyro
+Sensor fusion
+
+Implement:
+
+complementary filter initially
+Kalman filter optional later
+
+Outputs:
+
+roll
+pitch
+yaw_rate
+PID controller
+
+Separate PID loops:
+
+roll
+pitch
+yaw
+
+PID inputs:
+
+target angle
+current angle
+
+PID outputs:
+
+motor correction values
+Mixer
+
+Quad X motor mixing:
+
+M1 = throttle + pitch + roll - yaw
+M2 = throttle + pitch - roll + yaw
+M3 = throttle - pitch - roll - yaw
+M4 = throttle - pitch + roll + yaw
+ESC PWM generation
+
+Generate:
+
+1000–2000us pulses
+
+Safety:
+
+startup disarmed state
+throttle failsafe
+watchdog optional
+UART communication
+
+Receive from ESP32:
+
+throttle
+roll target
+pitch target
+yaw target
+arm/disarm
+mode
+
+Send telemetry:
+
+roll
+pitch
+yaw_rate
+battery voltage
+motor outputs
+PID values
+ESP32 SOFTWARE
+WiFi modes
+
+Option A:
+
+ESP32 creates hotspot
+Phone connects directly
+
+Option B:
+
+ESP32 joins existing WiFi
+PC dashboard connects
+UI OPTIONS
+OPTION 1 — Phone Web UI
+
+ESP32 hosts webpage.
+
+Features:
+
+virtual joystick
+throttle slider
+arm/disarm button
+telemetry display
+gyro angle display
+
+Technology:
+
+HTML/CSS/JavaScript
+WebSocket preferred
+OPTION 2 — PC Dashboard
+
+Use:
+
+Node-RED
+
+Features:
+
+live telemetry
+graphs
+PID tuning
+joystick/gamepad input
+debugging console
+
+Communication:
+
+MQTT or WebSocket
+COMMUNICATION FORMAT
+
+Recommended packet:
+
+<THR:1200,ROL:0.3,PIT:-0.1,YAW:0.0,ARM:1>
+
+Telemetry:
+
+<ROLL:1.2,PITCH:-0.8,YAW:0.2,BAT:11.4>
+DEVELOPMENT ROADMAP
+PHASE 1
+verify power rails
+verify UART
+verify MPU6050
+PHASE 2
+ESC PWM output
+motor spin test WITHOUT props
+PHASE 3
+sensor fusion
+angle estimation
+PHASE 4
+PID stabilization
+PHASE 5
+WiFi control UI
+telemetry streaming
+PHASE 6
+hover test
+PID tuning
+PHASE 7
+advanced modes
+follow mode
+return mode
+autonomous features
+IMPORTANT ENGINEERING CONSTRAINTS
+STM32 handles ALL real-time flight control
+ESP32 handles ONLY communication/UI
+never run PID on ESP32
+prioritize stability before autonomy
+always test motors WITHOUT propellers first
+implement failsafe before flight
+FUTURE EXPANSIONS
+
+Possible future features:
+
+ESP32-CAM
+optical flow
+GPS
+BLE follow mode
+computer vision
+ROS integration
+autonomous navigation

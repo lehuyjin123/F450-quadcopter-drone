@@ -1,0 +1,35 @@
+PID_t pid_angle_roll  = {
+    .Kp = 2.5f, .Ki = 0.05f, .Kd = 0.0f, .Kf = 0.0f,
+    .max_integral = 120.0f, .max_output = 200.0f, // 60 độ/s là đủ để hover mượt
+    .d_filter_alpha = 0.0f
+};
+PID_t pid_angle_pitch = {
+    .Kp = 2.5f, .Ki = 0.05f, .Kd = 0.0f, .Kf = 0.0f,
+    .max_integral = 120.0f, .max_output = 200.0f,
+    .d_filter_alpha = 0.0f
+};
+
+// Tầng 2 — Rate controller
+// Input: gyro °/s, Output: µs correction cho motor
+// Đây là nơi tune chính
+PID_t pid_rate_roll  = {
+    .Kp = 3.5f, .Ki = 0.02f, .Kd = 0.09f, .Kf = 0.0f, // Hạ Kd và Kp để triệt tiêu rung động
+    .max_integral = 200.0f, .max_output = 400.0f,
+    .d_filter_alpha = 0.2f
+};
+PID_t pid_rate_pitch = {
+    .Kp = 3.5f, .Ki = 0.02f, .Kd = 0.09f, .Kf = 0.0f,
+    .max_integral = 200.0f, .max_output = 400.0f,
+    .d_filter_alpha = 0.2f
+};
+PID_t pid_rate_yaw   = {
+    .Kp = 2.8f, .Ki = 0.05f, .Kd = 0.05f, .Kf = 0.0f,
+    .max_integral = 120.0f, .max_output = 200.0f,
+    .d_filter_alpha = 0.1f
+};
+
+
+
+
+        pDevice->pitch = 0.98f * (pDevice->pitch + pDevice->gy * dt) + 0.02f * accel_pitch;
+        pDevice->roll  = 0.98f * (pDevice->roll  + pDevice->gx * dt) + 0.02f * accel_roll;
