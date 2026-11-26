@@ -1,4 +1,21 @@
-# F450-quadcopter-drone
+# F450 Quadcopter
+
+Embedded systems capstone for a custom F450 quadcopter. An STM32 handles flight control, and an ESP32 serves the phone-based controller over Wi-Fi. The prototype demonstrated self-balancing hover at a selected height, as documented in the project notes.
+
+## Repository guide
+
+| Path | Contents |
+| --- | --- |
+| [Drone_stm](Drone_stm) | STM32 flight controller firmware |
+| [esp32_code](esp32_code) | ESP32 Wi-Fi bridge code |
+| [PCB design](PCB%20design.eprj) | PCB design project |
+| [Project diagram](Project%20diagram) | System diagrams |
+| [Test video](Test.mp4) | Prototype footage |
+
+![Assembled PCB](Fully%20soldered.jpg)
+
+## Original project notes
+
 This repo is about my final for the embedded system in my uni. 
 Even tho the whole project was done in just a month, from designing PCB to programming and controlling the drone.
 But I did manage to made it fly, well...hover at the designated height and self-balancing to be exact.
